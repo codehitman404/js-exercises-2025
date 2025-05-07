@@ -12,7 +12,7 @@
 
     <h2>Dataset Information</h2>
     <p>For this exercise, we will use a JSON file called
-        <a href="https://raw.githubusercontent.com/prof-rossetti/internet-technologies/refs/heads/main/data/hp-movies.json">"hp-movies.json"</a>.
+        <a href="https://raw.githubusercontent.com/prof-rossetti/internet-technologies/refs/heads/main/data/hp-movies.json">"hp-movies.json"</a>
         that has been uploaded to the Internet.
         The JSON file contains information about Harry Potter movies.
     </p>
@@ -76,73 +76,80 @@
     <script src="https://cdn.jsdelivr.net/npm/d3-array@3"></script>
     <script type="text/javascript">
 
-        // ------------------ Helper Functions ------------------
-        function getPosterUrl(movie){
-            return movie.poster || movie.posterUrl || movie.posterURL || movie.image || movie.imageUrl || movie.imageURL || "https://via.placeholder.com/200x300?text=No+Image";
-        }
+        const requestUrl = "https://raw.githubusercontent.com/prof-rossetti/internet-technologies/refs/heads/main/data/hp-movies.json";
 
-        // ------------------ Fetch and Process Data ------------------
-        var requestUrl = "https://raw.githubusercontent.com/prof-rossetti/internet-technologies/refs/heads/main/data/hp-movies.json";
+        // --------- helper utilities ---------
+        const getRating = movie => movie.rating ?? movie.imdbRating ?? movie.imdb_rating ?? null;
+        const getPoster = movie => movie.poster ?? movie.poster_url ?? movie.posterUrl ?? movie.Poster ?? "";
 
         fetch(requestUrl)
-            .then(response => response.json())
-            .then(function(data){
-                const movies = data;
+            .then(response => {
+                if (!response.ok) throw new Error("Network response was not ok");
+                return response.json();
+            })
+            .then(function (movies) {
                 console.log("DATA", movies);
 
-                console.log("---------------------");
+                // ---------------------
                 console.log("PART 1...");
 
-                // A & B. Number of movies
+                // A&B. number of movies
                 console.log(`Number of movies: ${movies.length}`);
 
-                // C. Title and year of each movie
+                // C. loop each movie
                 movies.forEach(m => console.log(`${m.title} (${m.year})`));
 
-                // D. Movie with highest rating
-                const topMovie = d3.max(movies, m => m.rating);
-                const highestRated = movies.find(m => m.rating === topMovie);
-                console.log(`Highest rated movie: ${highestRated.title} (${highestRated.rating}/10)`);
+                // D. highest‑rated movie
+                const topMovie = movies.reduce((max, m) => (getRating(m) > getRating(max) ? m : max), movies[0]);
+                console.log(`Highest rated: ${topMovie.title} (${getRating(topMovie)})`);
 
-
-                console.log("---------------------");
+                // ---------------------
                 console.log("PART 2...");
 
-                // Populate dropdown
                 const selectEl = document.getElementById("select-movie");
-                movies.forEach((m, idx) => {
+
+                // populate dropdown
+                movies.forEach((movie, idx) => {
                     const opt = document.createElement("option");
-                    opt.value = idx; // index as identifier
-                    opt.textContent = m.title;
+                    opt.value = movie.id ?? idx; // fallback to index if no id
+                    opt.textContent = movie.title;
                     selectEl.appendChild(opt);
                 });
 
-                // Update display helper
-                function updateMovieInfo(){
-                    const selectedIdx = parseInt(selectEl.value);
-                    if (isNaN(selectedIdx)) return; // "Select a Movie" option
-                    const movie = movies[selectedIdx];
+                // function to render movie info
+                function updateMovieInfo() {
+                    const chosenVal = selectEl.value;
+                    const movie = movies.find((m, i) => String(m.id ?? i) === chosenVal);
+                    if (!movie) return;
+
                     document.getElementById("display-title").textContent = movie.title;
                     document.getElementById("display-year").textContent = movie.year;
-                    document.getElementById("display-rating").textContent = movie.rating;
+                    document.getElementById("display-rating").textContent = getRating(movie);
 
                     const imgContainer = document.getElementById("image-container");
                     imgContainer.innerHTML = ""; // clear previous
-                    const img = document.createElement("img");
-                    img.src = getPosterUrl(movie);
-                    img.alt = `${movie.title} Poster`;
-                    img.style.maxWidth = "200px";
-                    imgContainer.appendChild(img);
+                    const posterSrc = getPoster(movie);
+                    if (posterSrc) {
+                        const img = document.createElement("img");
+                        img.src = posterSrc;
+                        img.alt = `${movie.title} poster`;
+                        img.width = 200;
+                        imgContainer.appendChild(img);
+                    } else {
+                        imgContainer.textContent = "No image available";
+                    }
                 }
 
-                // Initial listener and default selection
+                // event listener
                 selectEl.addEventListener("change", updateMovieInfo);
-                // Optionally display first movie by default
-                // selectEl.selectedIndex = 1;
-                // updateMovieInfo();
 
+                // auto‑select first actual movie (if any)
+                if (movies.length > 0) {
+                    selectEl.selectedIndex = 1; // the first option after "Select a Movie"
+                    updateMovieInfo();
+                }
             })
-            .catch(err => console.error(err));
+            .catch(err => console.error("Fetch error:", err));
 
     </script>
 </body>
