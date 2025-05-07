@@ -48,21 +48,57 @@
 
 
     <script type="text/javascript">
-
-        console.log("---------------------")
-        console.log("PART 1...")
-
-
-
-
-
-        console.log("---------------------")
-        console.log("PART 2...")
-
-
-
-
-
-    </script>
+        /* ----------  PART 1  ---------- */
+        console.log("---------------------");
+        console.log("PART 1...");
+      
+        /**
+         * Returns the area of a circle for a given radius.
+         * @param {number} radius – circle radius
+         * @returns {number}      – area (π r²)
+         */
+        function calculateCircleArea(radius) {
+          return Math.PI * radius * radius;
+        }
+      
+        // demo: radius = 9
+        const demoRadius = 9;
+        const demoArea   = calculateCircleArea(demoRadius);
+      
+        console.log(`Radius: ${demoRadius}`);
+        console.log(`Area:   ${demoArea.toFixed(2)}`);  // toFixed for readability
+      
+      
+      
+        /* ----------  PART 2  ---------- */
+        console.log("---------------------");
+        console.log("PART 2...");
+      
+        // DOM elements
+        const inputRadius = document.getElementById("input-radius");
+        const btnCalc     = document.getElementById("calculate");
+        const spanArea    = document.getElementById("display-area");
+      
+        // helper to render the area nicely
+        function displayArea(area) {
+          spanArea.textContent = area.toFixed(2); // 2 dp; tweak as needed
+        }
+      
+        // respond to clicks
+        btnCalc.addEventListener("click", () => {
+          const r = Number(inputRadius.value);
+          if (isNaN(r) || r < 0) {
+            alert("Please enter a non‑negative number for the radius.");
+            return;
+          }
+          const a = calculateCircleArea(r);
+          displayArea(a);
+          console.log(`User input → Radius: ${r}, Area: ${a}`);
+        });
+      
+        // optional: show the area for the default radius at page load
+        btnCalc.click();
+      </script>
+      
 </body>
 </html>
