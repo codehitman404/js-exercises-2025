@@ -49,34 +49,114 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/d3-random@3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-random@3"></script>
     <script type="text/javascript">
-
-        function formatUSD(price) {
-            return `$${price.toFixed(2)}`
-        }
-
-        console.log("---------------------")
-        console.log("PART 1...")
-
-
-
-
-
-
-        console.log("---------------------")
-        console.log("PART 2...")
-
-
-
-
-
-
-        console.log("---------------------")
-        console.log("PART 3...")
-
-
-
-
+    /* ----------  shared helper  ---------- */
+    function formatUSD(x) {
+      return `$${x.toFixed(2)}`;
+    }
+    
+    /* ----------  PART 1  ---------- */
+    console.log("---------------------");
+    console.log("PART 1...");
+    
+    (function runPart1() {
+      const start      = 150_000;      // $150 k
+      const goal       = 1_000_000;    // $1 M
+      const annualRate = 0.08;         // 8 %
+    
+      let balance = start;
+      let years   = 0;
+      while (balance < goal) {
+        balance *= 1 + annualRate;
+        years += 1;
+      }
+    
+      console.log(`Start balance:  ${formatUSD(start)}`);
+      console.log(`Years needed:   ${years}`);
+      console.log(`Ending balance: ${formatUSD(balance)}`);
+    })();
+    
+    /* ----------  PART 2  ---------- */
+    console.log("---------------------");
+    console.log("PART 2...");
+    
+    (function runPart2() {
+      const start        = 150_000;
+      const goal         = 1_000_000;
+      const meanReturn   = 0.08;      // 8 %
+      const stdevReturn  = 0.15;      // 15 %
+    
+      const randNormal   = d3.randomNormal(meanReturn, stdevReturn);
+    
+      let balance = start;
+      let years   = 0;
+      const yearlyReturns = [];
+    
+      while (balance < goal) {
+        const r = randNormal();             // simulated return (e.g., 0.042 → 4.2 %)
+        yearlyReturns.push(r);
+        balance *= 1 + r;
+        years += 1;
+      }
+    
+      console.log(`Start balance:  ${formatUSD(start)}`);
+      console.log(`Years needed:   ${years}`);
+      console.log(`Ending balance: ${formatUSD(balance)}`);
+      console.log("Returns by year:", yearlyReturns.map(v => (v * 100).toFixed(2) + "%"));
+    })();
+    
+    /* ----------  PART 3  ---------- */
+    console.log("---------------------");
+    console.log("PART 3...");
+    
+    // --- build a simple interface (adds elements after the script tag) ---
+    const container = document.createElement("section");
+    container.innerHTML = `
+      <h3>Run your own simulation</h3>
+      <label>Initial balance: $<input id="init-bal" type="number" value="150000" step="1000"></label><br>
+      <label>Desired balance: $<input id="goal-bal" type="number" value="1000000" step="1000"></label><br>
+      <label>Mean annual return (%): <input id="mean-ret" type="number" value="8" step="0.1"></label><br>
+      <label>Std dev (%): <input id="stdev-ret" type="number" value="15" step="0.1"></label><br><br>
+      <button id="run-sim">Run Simulation</button><br><br>
+      <strong>Result:</strong><br>
+      Years needed: <span id="out-years">—</span><br>
+      Ending balance: <span id="out-balance">—</span>
+    `;
+    document.body.appendChild(container);
+    
+    // --- simulation logic reused from Part 2 ---
+    function simulateToGoal({start, goal, mean, stdev}) {
+      const rand = d3.randomNormal(mean, stdev);
+      let bal = start, yrs = 0;
+      while (bal < goal) {
+        bal *= 1 + rand();
+        yrs += 1;
+      }
+      return {years: yrs, ending: bal};
+    }
+    
+    // --- hook up the button ---
+    document.getElementById("run-sim").addEventListener("click", () => {
+      const params = {
+        start: Number(document.getElementById("init-bal").value),
+        goal:  Number(document.getElementById("goal-bal").value),
+        mean:  Number(document.getElementById("mean-ret").value) / 100,
+        stdev: Number(document.getElementById("stdev-ret").value) / 100
+      };
+    
+      if (params.start <= 0 || params.goal <= params.start) {
+        alert("Please enter a positive starting balance and a larger goal balance.");
+        return;
+      }
+    
+      const {years, ending} = simulateToGoal(params);
+      document.getElementById("out-years").textContent    = years;
+      document.getElementById("out-balance").textContent  = formatUSD(ending);
+    
+      console.log(`Custom sim → start=${formatUSD(params.start)}, goal=${formatUSD(params.goal)}, years=${years}, ending=${formatUSD(ending)}`);
+    });
     </script>
+    
 </body>
 </html>
