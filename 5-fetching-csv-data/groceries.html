@@ -69,41 +69,75 @@
 
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
     <script type="text/javascript">
-
-        function formatUSD(price) {
-            return `$${price.toFixed(2)}`
-        }
-
-        var requestUrl = "https://raw.githubusercontent.com/prof-rossetti/intro-to-python/main/data/products.csv"
-
-        d3.csv(requestUrl).then(function(data) {
-            console.log("DATA:", data)
-            var products = data
-
-            console.log("---------------------")
-            console.log("PART 1...")
-
-
-
-
-
-
-            console.log("---------------------")
-            console.log("PART 2...")
-
-
-
-
-
-
-
-
-
-
-            }).catch(function(error) {
-                console.error("ERROR:", error)
-        })
-
+      // ---------- helper ----------
+      function formatUSD(n) {
+        return `$${Number(n).toFixed(2)}`
+      }
+    
+      const requestUrl =
+        "https://raw.githubusercontent.com/prof-rossetti/intro-to-python/main/data/products.csv";
+    
+      d3.csv(requestUrl).then(function (products) {
+    
+        /* ------------------------------------------------------------------
+           PART 1
+        ------------------------------------------------------------------ */
+        console.log("---------------------");
+        console.log("PART 1...");
+    
+        // A & B – how many products?
+        console.log(`Number of products: ${products.length}`);
+    
+        // C – each product’s name + price
+        products.forEach(p =>
+          console.log(`${p.name}: ${formatUSD(parseFloat(p.price))}`)
+        );
+    
+        // D – unique list of departments
+        const departments = [];
+        products.forEach(p => {
+          if (!departments.includes(p.department)) departments.push(p.department);
+        });
+    
+        // E – how many departments?
+        console.log(`Number of departments: ${departments.length}`);
+    
+        // F – list departments (uppercase)
+        departments.forEach(d => console.log(d.toUpperCase()));
+    
+        // G – products in the “beverages” department
+        const beverages = products.filter(p => p.department === "beverages");
+    
+        // H – count of beverages
+        console.log(`Number of beverage products: ${beverages.length}`);
+    
+        // I – average beverage price
+        const avgBeveragePrice =
+          beverages.reduce((sum, p) => sum + parseFloat(p.price), 0) /
+          beverages.length;
+        console.log(`Average beverage price: ${formatUSD(avgBeveragePrice)}`);
+    
+        /* ------------------------------------------------------------------
+           PART 2
+        ------------------------------------------------------------------ */
+        console.log("---------------------");
+        console.log("PART 2...");
+    
+        // A – sort products by name (ascending)
+        const sortedProducts = [...products].sort((a, b) =>
+          a.name.localeCompare(b.name)
+        );
+    
+        // B – display on the page
+        const ul = document.getElementById("display-groceries");
+        sortedProducts.forEach(p => {
+          const li = document.createElement("li");
+          li.textContent = `${p.name} — ${formatUSD(parseFloat(p.price))}`;
+          ul.appendChild(li);
+        });
+      })
+      .catch(err => console.error("ERROR:", err));
     </script>
+    
 </body>
 </html>
