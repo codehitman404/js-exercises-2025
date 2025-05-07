@@ -17,7 +17,7 @@
 <p>
   We’re using Alpha Vantage’s
   <a href="https://www.alphavantage.co/documentation/#market-status">Market Status endpoint</a>,
-  which returns the open / close hours and real‑time status of major trading venues.
+  which returns open / close hours and real‑time status for major trading venues.
 </p>
 
 <h2>Setup</h2>
@@ -33,7 +33,6 @@
   <p>Current Status: <span id="display-status">…</span></p>
 </div>
 
-<!-- No library required; plain fetch() -->
 <script>
   /* ------------------------------------------------------------
      Get / remember the API key
@@ -53,6 +52,14 @@
   ------------------------------------------------------------ */
   const requestUrl =
     `https://www.alphavantage.co/query?function=MARKET_STATUS&apikey=${apiKey}`;
+
+  /* ------------------------------------------------------------
+     Helper – always give back a comma‑separated string of exchanges
+  ------------------------------------------------------------ */
+  const getExchanges = market =>
+    Array.isArray(market.primary_exchanges)
+      ? market.primary_exchanges.join(", ")
+      : String(market.primary_exchanges || "N/A");
 
   /* ------------------------------------------------------------
      Fetch + analyse
@@ -88,12 +95,10 @@
       // G – log formatted details
       console.log("US Market Info:");
       console.log(`  Type: ${usMarket.market_type}`);
-      console.log(`  Exchanges: ${usMarket.primary_exchanges.join(", ")}`);
+      console.log(`  Exchanges: ${getExchanges(usMarket)}`);
       console.log(`  Open: ${usMarket.local_open}`);
       console.log(`  Close: ${usMarket.local_close}`);
-      console.log(
-        `  Status: ${usMarket.current_status.toUpperCase()}`
-      );
+      console.log(`  Status: ${usMarket.current_status.toUpperCase()}`);
 
       console.log("---------------------");
       console.log("PART 2…");
@@ -101,12 +106,12 @@
       /* --------------------------------------------------------
          Write to page
       -------------------------------------------------------- */
-      document.getElementById("display-region").textContent      = usMarket.region;
-      document.getElementById("display-type").textContent        = usMarket.market_type;
-      document.getElementById("display-exchanges").textContent   = usMarket.primary_exchanges.join(", ");
-      document.getElementById("display-open").textContent        = usMarket.local_open;
-      document.getElementById("display-close").textContent       = usMarket.local_close;
-      document.getElementById("display-status").textContent      = usMarket.current_status.toUpperCase();
+      document.getElementById("display-region").textContent    = usMarket.region;
+      document.getElementById("display-type").textContent      = usMarket.market_type;
+      document.getElementById("display-exchanges").textContent = getExchanges(usMarket);
+      document.getElementById("display-open").textContent      = usMarket.local_open;
+      document.getElementById("display-close").textContent     = usMarket.local_close;
+      document.getElementById("display-status").textContent    = usMarket.current_status.toUpperCase();
     })
     .catch(err => {
       console.error("ERROR:", err);
