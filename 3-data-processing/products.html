@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -57,21 +56,64 @@
                 "price": 4.99,
                 "imageURL": "https://picsum.photos/id/1080/360/200"
             }
-        ]
+        ];
 
-        console.log("---------------------")
-        console.log("PART 1...")
+        function formatUSD(value) {
+            return `$${value.toFixed(2)}`;
+        }
+
+        console.log("---------------------");
+        console.log("PART 1...");
+
+        // A. Total number of products
+        console.log(`Total products: ${products.length}`);
+
+        // B. Name and price for each product
+        products.forEach(p => console.log(`${p.name}: ${formatUSD(p.price)}`));
+
+        // C. Products with price < $50
+        const matchingProducts = products.filter(p => p.price < 50);
+        console.log("Matching products (< $50):", matchingProducts);
+
+        // D. Total matching products
+        console.log(`Total matching products: ${matchingProducts.length}`);
 
 
+        console.log("---------------------");
+        console.log("PART 2...");
 
+        const container = document.getElementById("display-products");
 
+        products.forEach(product => {
+            const productDiv = document.createElement("div");
 
+            const nameP = document.createElement("p");
+            nameP.textContent = `Name: ${product.name}`;
 
-        console.log("---------------------")
-        console.log("PART 2...")
+            const descP = document.createElement("p");
+            descP.textContent = `Description: ${product.description}`;
 
+            const priceP = document.createElement("p");
+            priceP.textContent = `Price: ${formatUSD(product.price)}`;
 
+            const img = document.createElement("img");
+            img.src = product.imageURL;
+            img.alt = product.name;
+            img.width = 360;
+            img.height = 200;
+            img.style.display = "block";
+            img.style.marginBottom = "0.5rem";
 
+            const separator = document.createElement("hr");
+
+            productDiv.appendChild(nameP);
+            productDiv.appendChild(descP);
+            productDiv.appendChild(priceP);
+            productDiv.appendChild(img);
+            productDiv.appendChild(separator);
+
+            container.appendChild(productDiv);
+        });
 
     </script>
 </body>
