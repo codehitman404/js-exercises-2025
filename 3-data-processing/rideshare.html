@@ -59,46 +59,64 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/d3-array@3"></script>
-    <script type="text/javascript">
+<script type="text/javascript">
+/* ----------  helpers ---------- */
+function formatUSD(x) {
+  return `$${x.toFixed(2)}`;
+}
 
-        var trip = {
-            "driver": {
-                "first_name": "Danny",
-                "last_name": "Dreyfus",
-                "avg_rating": 3.6,
-                "total_rides": 950
-            },
-            "vehicle": {
-                "make": "Toyota",
-                "model": "Prius",
-                "year": 2021,
-                "color": "silver",
-                "licensePlate": "ABC-1234"
-            },
-            "rideshare": true,
-            "pickup_location": "Union Station",
-            "stops": [
-                {"sequence": 1, "passenger": "Vishal", "destination": "Logan Circle", "fare": 5.99},
-                {"sequence": 2, "passenger": "Clara", "destination": "Dupont Circle", "fare": 7.99},
-                {"sequence": 3, "passenger": "Lee", "destination": "Washington Circle", "fare": 9.99}
-            ]
-        }
+/* ==========  PART 1  (console)  ========== */
+console.log("---------------------");
+console.log("PART 1...");
 
-        console.log("---------------------")
-        console.log("PART 1...")
+// A. driver’s first name
+console.log(`Your driver is ${trip.driver.first_name}`);
 
+// B. license plate
+console.log(trip.vehicle.licensePlate);
 
+// C. number of stops
+console.log(trip.stops.length);
 
+// D. destination of first stop
+console.log(trip.stops[0].destination);
 
+// E. destination of last stop (works for any length)
+console.log(trip.stops[trip.stops.length - 1].destination);
 
-        console.log("---------------------")
-        console.log("PART 2...")
+// F. each passenger name on its own line
+trip.stops.forEach(s => console.log(s.passenger));
 
+// G. array of numeric fares
+const fares = trip.stops.map(s => s.fare);
+console.log("Fares:", fares);
 
-
+// H. total fare (sum) formatted as USD
+const totalFare = d3.sum(fares);
+console.log(`Total fare: ${formatUSD(totalFare)}`);
 
 
-    </script>
+
+/* ==========  PART 2  (DOM)  ========== */
+console.log("---------------------");
+console.log("PART 2...");
+
+// A. driver’s name → span
+document.getElementById("display-driver").textContent = trip.driver.first_name;
+
+// B. vehicle make / model / plate → span
+const v = trip.vehicle;
+document.getElementById("display-vehicle").textContent =
+  `${v.make} ${v.model} (${v.licensePlate})`;
+
+// C. passenger names → ordered list
+const ol = document.getElementById("display-passengers");
+trip.stops.forEach(stop => {
+  const li = document.createElement("li");
+  li.textContent = stop.passenger;
+  ol.appendChild(li);
+});
+</script>
 
 </body>
 </html>
