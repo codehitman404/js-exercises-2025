@@ -67,28 +67,85 @@
 
 
     <script type="text/javascript">
-
-        console.log("---------------------")
-        console.log("PART 1...")
-
-
-
-
-
-        console.log("---------------------")
-        console.log("PART 2...")
-
-
-
-
-
-        console.log("---------------------")
-        console.log("PART 3...")
-
-
-
-
-
-    </script>
+        /* ----------  PART 1  ---------- */
+        console.log("---------------------");
+        console.log("PART 1...");
+      
+        // model the current conditions
+        const isRaining  = true;   // change as desired
+        const ownsUmbrella = false;
+      
+        console.log({ isRaining, ownsUmbrella });
+      
+        // give advice directly (spec asks for console logs here)
+        if (!isRaining) {
+          console.log("Skies are clear");
+        } else {
+          if (ownsUmbrella) {
+            console.log("Bring your umbrella");
+          } else {
+            console.log("Buy an umbrella");
+          }
+        }
+      
+      
+      
+        /* ----------  PART 2  ---------- */
+        console.log("---------------------");
+        console.log("PART 2...");
+      
+        /**
+         * Returns a message based on rain and umbrella ownership.
+         * @param {boolean} isRaining
+         * @param {boolean} ownsUmbrella
+         * @returns {string}
+         */
+        function advise(isRaining, ownsUmbrella) {
+          if (!isRaining) return "Skies are clear";
+          return ownsUmbrella ? "Bring your umbrella" : "Buy an umbrella";
+        }
+      
+        // test all four combinations
+        const scenarios = [
+          { isRaining: false, ownsUmbrella: false },
+          { isRaining: false, ownsUmbrella: true  },
+          { isRaining: true,  ownsUmbrella: false },
+          { isRaining: true,  ownsUmbrella: true  }
+        ];
+      
+        scenarios.forEach(s =>
+          console.log(
+            `isRaining=${s.isRaining}, ownsUmbrella=${s.ownsUmbrella} → ${advise(s.isRaining, s.ownsUmbrella)}`
+          )
+        );
+      
+      
+      
+        /* ----------  PART 3  ---------- */
+        console.log("---------------------");
+        console.log("PART 3...");
+      
+        // DOM elements
+        const chkRaining   = document.getElementById("switch-raining");
+        const chkUmbrella  = document.getElementById("switch-umbrella");
+        const btnAdvise    = document.getElementById("advise");
+        const spanMessage  = document.getElementById("display-message");
+      
+        // update the UI
+        function displayMessage(msg) {
+          spanMessage.textContent = msg;
+        }
+      
+        // button handler
+        btnAdvise.addEventListener("click", () => {
+          const msg = advise(chkRaining.checked, chkUmbrella.checked);
+          displayMessage(msg);
+          console.log(`Button clicked → ${msg}`);
+        });
+      
+        // optional: show advice when the page loads with default checkbox states
+        btnAdvise.click();
+      </script>
+      
 </body>
 </html>
