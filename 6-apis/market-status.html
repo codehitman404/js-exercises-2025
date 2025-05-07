@@ -1,113 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Market Status (JSON)</title>
+  <meta charset="UTF-8" />
+  <title>Market Status (JSON)</title>
+  <style>
+    body { font-family: sans-serif; }
+    #display-market-info span { font-weight: 600; }
+  </style>
 </head>
 <body>
 
-    <h1>Market Status (JSON)</h1>
-    <a href="../index.html">Home</a>
+<h1>Market Status (JSON)</h1>
+<a href="../index.html">Home</a>
 
-    <h2>Dataset Information</h2>
-    <p>For this exercise, we will use data from the AlphaVantage API.
-        Specifically we will use the <a href="https://www.alphavantage.co/documentation/#market-status">"Market Status" endpoint</a>
-        to fetch information about the current status of major trading venues around the world.
-        Consult the API documentation to learn more.
-    </p>
+<h2>Dataset Information</h2>
+<p>
+  We’re using Alpha Vantage’s
+  <a href="https://www.alphavantage.co/documentation/#market-status">Market Status endpoint</a>,
+  which returns the open / close hours and real‑time status of major trading venues.
+</p>
 
-    <h2>Setup</h2>
-    <p>First obtain an AlphaVantage API Key, and supply it when prompted.</p>
+<h2>Setup</h2>
+<p>Paste your Alpha Vantage API key when prompted (stored only in <code>sessionStorage</code>).</p>
 
-    <h2>Part 1</h2>
-    <p>
-        Write JavaScript code to answer the questions below.
-        Log each of the answers to the console.
+<h2>Display</h2>
+<div id="display-market-info">
+  <p>Region: <span id="display-region">…</span></p>
+  <p>Market Type: <span id="display-type">…</span></p>
+  <p>Primary Exchanges: <span id="display-exchanges">…</span></p>
+  <p>Local Open: <span id="display-open">…</span></p>
+  <p>Local Close: <span id="display-close">…</span></p>
+  <p>Current Status: <span id="display-status">…</span></p>
+</div>
 
-        <ol type="A">
-            <li>Fetch market status data from the API.</li>
-            <li>Display the number of markets.</li>
-            <li>Filter the markets to identify only those that have a market type of "Equity", and store them in a variable called <code>equityMarkets</code>.</li>
-            <li>Display the number of equity markets.</li>
-            <li>Loop through the equity markets and display the market type and region of each.</li>
-            <li>Use a find operation to identify the equity market that has a region of "United States", and store it in a variable called <code>market</code>.</li>
-            <li>Display information about the US market, including: the market type, the primary exchanges, the local open and close time, and the current market status. Format the market status using all capital letters.</li>
-        </ol>
-    </p>
+<!-- No library required; plain fetch() -->
+<script>
+  /* ------------------------------------------------------------
+     Get / remember the API key
+  ------------------------------------------------------------ */
+  let apiKey = sessionStorage.getItem("ALPHAVANTAGE_API_KEY");
+  if (!apiKey) {
+    apiKey = prompt("Please enter your Alpha Vantage API key:");
+    if (!apiKey) {
+      alert("API key required ‑ reload when you have one.");
+      throw new Error("API key missing");
+    }
+    sessionStorage.setItem("ALPHAVANTAGE_API_KEY", apiKey);
+  }
 
+  /* ------------------------------------------------------------
+     Build request URL
+  ------------------------------------------------------------ */
+  const requestUrl =
+    `https://www.alphavantage.co/query?function=MARKET_STATUS&apikey=${apiKey}`;
 
-    <h2>Part 2</h2>
-    <p>
-        Write JavaScript code to answer the questions below.
-        Display the answers on the page in the designated areas.
-    </p>
+  /* ------------------------------------------------------------
+     Fetch + analyse
+  ------------------------------------------------------------ */
+  fetch(requestUrl)
+    .then(r => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.json();
+    })
+    .then(data => {
+      const markets = data.market_status ?? data.markets ?? [];
+      console.log("RESPONSE:", markets);
 
-    <ol type="A">
-        <li>Using the designated <code>span</code> elements below,
-            display information about the US market, including it's region, market type,
-            primary exchanges, local open and close times, and current status.
-        </li>
-    </ol>
+      console.log("---------------------");
+      console.log("PART 1…");
 
-    <hr>
-    <h2>Display</h2>
+      // B – number of markets
+      console.log(`Total markets: ${markets.length}`);
 
-    <!--select name="region" id="select-region">
-        <option value="N/A">Select an Equity Market Region</option>
-    </select-->
+      // C – equity‑only
+      const equityMarkets = markets.filter(m => m.market_type === "Equity");
+      console.log(`Equity markets: ${equityMarkets.length}`);
 
-    <div id="display-market-info">
-        <p>Region: <span id="display-region">TODO</span></p>
-        <p>Market Type: <span id="display-type">TODO</span></p>
-        <p>Primary Exchanges: <span id="display-exchanges">TODO</span></p>
-        <p>Local Open: <span id="display-open">TODO</span></p>
-        <p>Local Close: <span id="display-close">TODO</span></p>
-        <p>Current Status: <span id="display-status">TODO</span></p>
-    </div>
+      // E – list each equity market’s type + region
+      equityMarkets.forEach(m =>
+        console.log(`${m.market_type} — ${m.region}`)
+      );
 
+      // F – find United States equity market
+      const usMarket = equityMarkets.find(m => m.region === "United States");
+      if (!usMarket) throw new Error("US market not found in payload");
 
+      // G – log formatted details
+      console.log("US Market Info:");
+      console.log(`  Type: ${usMarket.market_type}`);
+      console.log(`  Exchanges: ${usMarket.primary_exchanges.join(", ")}`);
+      console.log(`  Open: ${usMarket.local_open}`);
+      console.log(`  Close: ${usMarket.local_close}`);
+      console.log(
+        `  Status: ${usMarket.current_status.toUpperCase()}`
+      );
 
+      console.log("---------------------");
+      console.log("PART 2…");
 
-    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
-    <script type="text/javascript">
+      /* --------------------------------------------------------
+         Write to page
+      -------------------------------------------------------- */
+      document.getElementById("display-region").textContent      = usMarket.region;
+      document.getElementById("display-type").textContent        = usMarket.market_type;
+      document.getElementById("display-exchanges").textContent   = usMarket.primary_exchanges.join(", ");
+      document.getElementById("display-open").textContent        = usMarket.local_open;
+      document.getElementById("display-close").textContent       = usMarket.local_close;
+      document.getElementById("display-status").textContent      = usMarket.current_status.toUpperCase();
+    })
+    .catch(err => {
+      console.error("ERROR:", err);
+      alert("Something went wrong. Check the console for details.");
+    });
+</script>
 
-        // AVOID HARD-CODING THE CREDENTIALS
-        // USE SESSION STORAGE TO MINIMIZE THE NUMBER OF TIMES WE HAVE TO PROVIDE THE CREDENTIAL
-        // check session storage for the API Key:
-        var apiKey = sessionStorage.getItem("ALPHAVANTAGE_API_KEY")
-        if (!apiKey) {
-            // if it isn't there, ask the user to supply it:
-            apiKey = prompt("Please enter your AlphaVantage API key:")
-            // store it in the session for later (so it will persist after refreshing the page)
-            sessionStorage.setItem("ALPHAVANTAGE_API_KEY", apiKey)
-        }
-
-
-
-
-        var requestUrl = `https://www.alphavantage.co/query?function=MARKET_STATUS&apikey=${apiKey}`
-        d3.json(requestUrl).then(function(data) {
-            console.log("RESPONSE:", data)
-
-            console.log("---------------------")
-            console.log("PART 1...")
-
-
-
-
-
-            console.log("---------------------")
-            console.log("PART 2...")
-
-
-
-
-        }).catch(function(error) {
-            console.error("ERROR:", error)
-        })
-
-
-
-    </script>
 </body>
 </html>
