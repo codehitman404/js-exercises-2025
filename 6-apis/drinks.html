@@ -1,111 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Non‑alcoholic Drinks (JSON)</title>
-    <style>
-      /* quick flex grid so images wrap nicely */
-      #display-drinks {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-      }
-      #display-drinks > div {
-        width: 150px;
-        text-align: center;
-      }
-      #display-drinks img {
-        height: 100px;
-        object-fit: cover;
-      }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Non‑alcoholic Drinks (JSON)</title>
+
+  <style>
+    /* simple flex grid so thumbnails wrap nicely */
+    #display-drinks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    #display-drinks > div {
+      width: 150px;
+      text-align: center;
+      font-family: sans-serif;
+    }
+    #display-drinks img {
+      height: 100px;
+      object-fit: cover;
+      border-radius: 4px;
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
+    }
+  </style>
 </head>
 <body>
 
-<h1>Non‑alcoholic Drinks (JSON)</h1>
-<a href="../index.html">Home</a>
+  <h1>Non‑alcoholic Drinks (JSON)</h1>
+  <a href="../index.html">Home</a>
 
-<h2>Dataset Information</h2>
-<p>
-  We’re using the CocktailDB “filter by alcoholic” endpoint to grab all non‑alcoholic drinks:
-  <code>/filter.php?a=Non_Alcoholic</code>.
-  Full docs at <a href="https://www.thecocktaildb.com/api.php">thecocktaildb.com/api.php</a>.
-</p>
+  <h2>Dataset Information</h2>
+  <p>
+    We’re using the CocktailDB “filter by alcoholic” endpoint, which returns every
+    drink whose <code>strAlcoholic</code> field is “Non&nbsp;alcoholic”.  
+    Docs: <a href="https://www.thecocktaildb.com/api.php">thecocktaildb.com/api.php</a>.
+  </p>
 
-<h2>Part 1</h2>
-<ol type="A">
-  <li>Build the request URL.</li>
-  <li>Fetch the data.</li>
-  <li>Log the total number of drinks.</li>
-  <li>List each drink’s name and ID.</li>
-</ol>
+  <h2>Display</h2>
+  <p>Drinks: <span id="display-drinks-count">…</span></p>
+  <div id="display-drinks"></div>
 
-<h2>Part 2</h2>
-<ol type="A">
-  <li>Show the drink count in the span below.</li>
-  <li>Create a card for every drink (name + 100 px image).</li>
-</ol>
+  <!-- No libraries required; fetch() is built‑in -->
+  <script>
+    /* ------------------------------------------------------------
+       PART 1 – fetch + log answers
+    ------------------------------------------------------------ */
+    const requestURL =
+      "https://www.thecocktaildb.com/api/json/v1/1/filter.php?a=Non_Alcoholic";
 
-<hr>
-<h2>Display</h2>
-<p>Drinks: <span id="display-drinks-count">…</span></p>
-<div id="display-drinks"></div>
+    fetch(requestURL)
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then(data => {
+        const drinks = data?.drinks ?? [];
+        console.log("DATA:", drinks);
 
-<!-- d3.json for convenient JSON fetching -->
-<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+        console.log("---------------------");
+        console.log("PART 1…");
 
-<script>
-  /* ------------------------------------------------------------
-     CONFIG
-  ------------------------------------------------------------ */
-  const requestUrl =
-    "https://www.thecocktaildb.com/api/json/v1/1/filter.php?a=Non_Alcoholic";
+        // C – how many drinks?
+        console.log(`Number of non‑alcoholic drinks: ${drinks.length}`);
 
-  /* ------------------------------------------------------------
-     FETCH & PROCESS
-  ------------------------------------------------------------ */
-  d3.json(requestUrl).then(data => {
-    const drinks = data.drinks ?? [];
-    console.log("DATA:", drinks);
+        // D – list each drink’s name + ID
+        drinks.forEach(d =>
+          console.log(`${d.strDrink} (ID: ${d.idDrink})`)
+        );
 
-    console.log("---------------------");
-    console.log("PART 1…");
+        console.log("---------------------");
+        console.log("PART 2…");
 
-    // C – count
-    console.log(`Number of non‑alcoholic drinks: ${drinks.length}`);
+        /* ------------------------------------------------------------
+           PART 2 – render to page
+        ------------------------------------------------------------ */
+        // A – count in the span
+        document.getElementById("display-drinks-count").textContent =
+          drinks.length;
 
-    // D – list each drink
-    drinks.forEach(d =>
-      console.log(`${d.strDrink} (ID: ${d.idDrink})`)
-    );
+        // B – create a card for every drink
+        const container = document.getElementById("display-drinks");
+        drinks.forEach(d => {
+          const card = document.createElement("div");
 
-    console.log("---------------------");
-    console.log("PART 2…");
+          const name = document.createElement("p");
+          name.textContent = d.strDrink;
+          card.appendChild(name);
 
-    /* ---------- update page ---------- */
-    // A – drink count
-    document.getElementById("display-drinks-count").textContent = drinks.length;
+          const img = document.createElement("img");
+          img.src = d.strDrinkThumb;
+          img.alt = `${d.strDrink} thumbnail`;
+          card.appendChild(img);
 
-    // B – build cards
-    const container = document.getElementById("display-drinks");
-    drinks.forEach(d => {
-      const card = document.createElement("div");
-
-      const p = document.createElement("p");
-      p.textContent = d.strDrink;
-      card.appendChild(p);
-
-      const img = document.createElement("img");
-      img.src = d.strDrinkThumb;
-      img.alt = `${d.strDrink} image`;
-      card.appendChild(img);
-
-      container.appendChild(card);
-    });
-  })
-  .catch(err => console.error("Fetch error:", err));
-</script>
-
+          container.appendChild(card);
+        });
+      })
+      .catch(err => {
+        console.error("Fetch error:", err);
+        document.getElementById("display-drinks-count").textContent =
+          "Error loading data";
+      });
+  </script>
 </body>
 </html>
