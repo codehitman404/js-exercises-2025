@@ -60,29 +60,63 @@
 
 
     <script type="text/javascript">
-
-        console.log("---------------------")
-        console.log("PART 1...")
-
-
-
-
-
-        console.log("---------------------")
-        console.log("PART 2...")
-
-
-
-
-
-
-        console.log("---------------------")
-        console.log("PART 3...")
-
-
-
-
-
-    </script>
+        /* ----------  PART 1  ---------- */
+        console.log("---------------------");
+        console.log("PART 1...");
+      
+        // 1. model the Celsius temperature
+        const celsiusTemp = -270;
+      
+        // 2. convert to Fahrenheit
+        const fahrenheitTemp = (celsiusTemp * 9) / 5 + 32;
+      
+        // 3. log both
+        console.log(`Celsius: ${celsiusTemp} °C`);
+        console.log(`Fahrenheit: ${fahrenheitTemp} °F`);
+      
+        /* ----------  PART 2  ---------- */
+        console.log("---------------------");
+        console.log("PART 2...");
+      
+        // reusable conversion function
+        function calculateTemp(tempC) {
+          return (tempC * 9) / 5 + 32;
+        }
+      
+        // invoke it for –270 °C
+        const part2Celsius = -270;
+        const part2Fahrenheit = calculateTemp(part2Celsius);
+      
+        console.log(`Celsius: ${part2Celsius} °C`);
+        console.log(`Fahrenheit: ${part2Fahrenheit} °F`);
+      
+        /* ----------  PART 3  ---------- */
+        console.log("---------------------");
+        console.log("PART 3...");
+      
+        // grab DOM elements
+        const inputC = document.getElementById("input-temp-c");
+        const btnCalc = document.getElementById("calculate");
+        const spanF = document.getElementById("display-temp-f");
+      
+        // event listener for the button
+        btnCalc.addEventListener("click", () => {
+          // 1. read and parse the user’s Celsius value
+          const tempC = Number(inputC.value);
+      
+          // 2. convert to Fahrenheit using our function
+          const tempF = calculateTemp(tempC);
+      
+          // 3. display it (round if you like)
+          spanF.textContent = `${tempF.toFixed(2)} °F`;
+      
+          // 4. also log to the console for good measure
+          console.log(`User input → ${tempC} °C = ${tempF} °F`);
+        });
+      
+        // optional: run once on page load so the default -270 shows a value
+        btnCalc.click();
+      </script>
+      
 </body>
 </html>
