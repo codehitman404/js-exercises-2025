@@ -6,10 +6,7 @@
     <title>Weather Forecast (JSON)</title>
 
     <style>
-        /*
-            STYLES FOR TABLE BORDERS (FEEL FREE TO UPDATE)
-            https://www.w3schools.com/html/html_table_borders.asp
-        */
+        /* STYLES FOR TABLE BORDERS (FEEL FREE TO UPDATE) */
         table, th, td {
             border: 1px solid black;
             border-collapse: collapse;
@@ -78,29 +75,80 @@
 
     <script type="text/javascript">
 
-        var degreeSymbol = "\u00B0"
+        var degreeSymbol = "\u00B0";
 
-        var requestUrl = "https://raw.githubusercontent.com/prof-rossetti/internet-technologies/refs/heads/main/data/weather-data.json"
+        var requestUrl = "https://raw.githubusercontent.com/prof-rossetti/internet-technologies/refs/heads/main/data/weather-data.json";
 
-        fetch(requestUrl).then(response => response.json())
+        fetch(requestUrl)
+            .then(response => response.json())
             .then(function(data){
-                console.log("DATA", data)
+                console.log("DATA", data);
 
+                // attempt to extract core pieces safely
+                var generatedDate = (data.properties && data.properties.updated) || data.updated || data.generatedAt || "N/A";
+                var periods = (data.properties && data.properties.periods) || [];
 
-                console.log("---------------------")
-                console.log("PART 1...")
+                console.log("---------------------");
+                console.log("PART 1...");
 
+                // A & B already done
+                console.log("Generated Date:", generatedDate);
 
+                // C. number of periods
+                console.log("Number of periods:", periods.length);
 
+                // D. filter to daytime only
+                var daytimePeriods = periods.filter(p => p.isDaytime);
 
-                console.log("---------------------")
-                console.log("PART 2...")
+                // E. number of daytime periods
+                console.log("Number of daytime periods:", daytimePeriods.length);
 
+                // F. human‑readable lines for each daytime period
+                daytimePeriods.forEach(p => {
+                    var tempStr = `${p.temperature}${degreeSymbol}${p.temperatureUnit}`;
+                    var forecastTxt = p.shortForecast || p.detailedForecast || "";
+                    console.log(`${p.name}: ${tempStr} – ${forecastTxt}`);
+                });
 
+                console.log("---------------------");
+                console.log("PART 2...");
 
+                // A. inject date into span
+                document.getElementById("display-date").textContent = generatedDate;
 
+                // B. build forecast table for the first 7 daytime periods
+                var tbl = document.getElementById("display-forecast");
+
+                // header row
+                var header = tbl.insertRow();
+                ["Period", "Temperature", "Forecast", "Icon"].forEach(text => {
+                    var th = document.createElement("th");
+                    th.textContent = text;
+                    header.appendChild(th);
+                });
+
+                daytimePeriods.slice(0, 7).forEach(p => {
+                    var row = tbl.insertRow();
+
+                    // Period name
+                    row.insertCell().textContent = p.name;
+
+                    // Temperature
+                    row.insertCell().textContent = `${p.temperature}${degreeSymbol}${p.temperatureUnit}`;
+
+                    // Forecast
+                    row.insertCell().textContent = p.shortForecast || p.detailedForecast || "";
+
+                    // Icon
+                    var iconCell = row.insertCell();
+                    var img = document.createElement("img");
+                    img.src = p.icon;
+                    img.alt = p.shortForecast || "weather icon";
+                    img.width = 50;
+                    iconCell.appendChild(img);
+                });
             })
-            .catch(err => console.log(err))
+            .catch(err => console.log(err));
 
     </script>
 </body>
